@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Speech Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .audio-container{
+            margin-top: 15px;
+            display: none;
+            text-align: center;
+        }
+        audio {
+            margin-top: 15px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Text-to-Speech Converter</h2>
+        <textarea  id="text-input" placeholder="Enter the text here..."></textarea>
+        <button onclick="convertTextToSpeech()">Convert to Speech</button>
+
+        <div id="audio-container" class="audio-container">
+            <p>Speech Output:</p>
+            <audio id="audio-player" controls></audio>
+        </div>
+    </div>
+
+    <script>
+        function convertTextToSpeech() {
+            const text = document.getElementById('text-input').value.trim();
+
+            if(!text){
+                alert("Please enter some text to convert to speech");
+                return
+            }
+
+            fetch('/speak', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({text: text})
+            })
+            .then(response => response.json())
+            .then(data =>{
+                if(data.audio_url){
+                    const audioContainer = document.getElementById('audio-container');
+                    const audioPlayer = document.getElementById('audio-player');
+                    audioPlayer.src = data.audio_url;
+                    audioContainer.style.display = 'block';
+                    audioPlayer.play();
+                }else{
+                    alert("Sorry, something went wrong. Please try again later.");
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
